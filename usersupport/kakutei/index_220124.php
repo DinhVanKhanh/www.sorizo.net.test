@@ -63,6 +63,7 @@
         <script type="text/javascript" src="/js/bbct/scramble.js"></script>
         <script type="text/javascript" src="/js/bbct/stegodict.js"></script>
         <script type="text/javascript" src="/js/bbct/utf-8.js"></script>
+		<?php require_once __DIR__ . '/../../lib/localstorage.php'; ?>
         <style>
             #output-list dl {  padding:0 0 0.2em 1em;  text-indent:-1em; margin:0; }*/
             dl.output { margin:0; }

@@ -1,4 +1,10 @@
 <?php
+	// if (session_id() == '') {
+	// 	session_cache_limiter('private');
+	// 	session_cache_expire(0);
+	// 	session_start();
+	// }
+
     require_once 'lib/common.php';
     require_once 'lib/login.php';
     require_once 'lib/contents_list.php';
@@ -52,9 +58,11 @@ if(location.protocol == 'http:') {
 <script type="text/javascript" src="/js/bbct/scramble.js"></script>
 <script type="text/javascript" src="/js/bbct/stegodict.js"></script>
 <script type="text/javascript" src="/js/bbct/utf-8.js"></script>
+<?php require_once __DIR__ . '/lib/localstorage.php'; ?>
 <?php include($_SERVER['DOCUMENT_ROOT'] . '/lib/header_gtag_ga4.php'); ?>
 </head>
 
+<!-- <img id="scLoading" style="position:absolute; right:42%; top:400px; z-index:9999; display:none; background-color:#333; padding:2%;" src="./images/icon_loading.gif" /> -->
 <body id="logout">
     <?php require_once 'lib/header_general.php'; ?>
     <article id="home" class="clearfix">
@@ -80,15 +88,15 @@ if(location.protocol == 'http:') {
             </div>
         </section>
 <?php if (CheckUserStatusByProduct("1015") == 1 && isLoginSerialOnlineNormal("normal")) { ?>
-        <section class="info service">
-            <div class="box-mm">
-                <h3>オンラインソリマチクラブ<br>お申し込み</h3>
-                <p>製品やマニュアルをダウンロード版でご提供する保守会員サービスの新プラン、「オンラインソリマチクラブ」のお申込みはこちらから。</p>
-                <ul class="boxlink">
-                    <li><a href="https://mypage.sorimachi.co.jp/SCloud_A/olsc/index" onfocus="this.blur()"  target='_blank'><span>オンラインソリクラ申込</span></a></li>
-                </ul>
-            </div>
-        </section>
+	<section class="info service">
+		<div class="box-mm">
+			<h3>オンラインソリマチクラブ<br>お申し込み</h3>
+			<p>製品やマニュアルをダウンロード版でご提供する保守会員サービスの新プラン、「オンラインソリマチクラブ」のお申込みはこちらから。</p>
+			<ul class="boxlink">
+				<li><a href="https://mypage.sorimachi.co.jp/SCloud_A/olsc/index" onfocus="this.blur()"  target='_blank'><span>オンラインソリクラ申込</span></a></li>
+			</ul>
+		</div>
+	</section>
 <?php } ?>
         <section class="info community">
             <div class="box-mm">

@@ -1,15 +1,22 @@
 <?php
-    require_once 'common.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+	require_once 'common.php';
     require_once 'drbbs.php';
     require_once '../lib/common.php';
     GetSystemValue();
     WriteLog(true);
-
     // パラメータ取得
+	$ReadPassWord = "";
 // 2020/02/13 t.maruyama 修正 ↓↓ 不具合の対応
 //    $Menu    = htmlspecialchars(@$_REQUEST["Menu"]);
 //    $GroupID = (htmlspecialchars(@$_REQUEST["GroupID"]) != '') ? ceil(htmlspecialchars(@$_REQUEST["GroupID"])) : ALLGROUP;
 //    $MesID   = (htmlspecialchars(@$_REQUEST["MesID"]) != '') ? ceil(htmlspecialchars(@$_REQUEST["MesID"])) : '';
+	$_REQUEST["Menu"] = $_REQUEST["Menu"] ?? "";
+	$_REQUEST["GroupID"] = $_REQUEST["GroupID"] ?? "";
+	$_REQUEST["MesID"] = $_REQUEST["MesID"] ?? "";
 
     $Menu    = isset($_REQUEST["Menu"]) ? $_REQUEST["Menu"] : '';
     $GroupID = isset($_REQUEST["GroupID"]) ? ceil(htmlspecialchars($_REQUEST["GroupID"])) : ALLGROUP;
@@ -84,8 +91,11 @@
 // 2020/02/13 t.maruyama 修正 ↓↓ 不具合の対応
                 if (session_id() != "") {
                     // いったんセッションをクリアする
-                    $_SESSION = array();
-                    session_destroy();
+                    // $_SESSION = array();
+                    // session_destroy();
+// ↓↓　<2022/08/25> <KhanhDinh> <destroy all session except session['store]: SAVE LOCALSTORAGE IN JS>
+					deleteExceptSession("store");
+// ↑↑　<2022/08/25> <KhanhDinh> <destroy all session except session['store]: SAVE LOCALSTORAGE IN JS>
                 }
                 session_start();
 // 2020/02/13 t.maruyama 修正 ↑↑ 不具合の対応
@@ -136,9 +146,12 @@
     else {
 // 2020/02/13 t.maruyama 修正 ↓↓ 不具合の対応
 //        $_SESSION["ReadPassWord"] = $_SESSION["GroupID"] = '';
-        $_SESSION = array();
+        // $_SESSION = array();
 // 2020/02/13 t.maruyama 修正 ↑↑ 不具合の対応
-        session_destroy();
+        // session_destroy();
+// ↓↓　<2022/08/25> <KhanhDinh> <destroy all session except session['store]: SAVE LOCALSTORAGE IN JS>
+		deleteExceptSession("store");
+// ↑↑　<2022/08/25> <KhanhDinh> <destroy all session except session['store]: SAVE LOCALSTORAGE IN JS>
     }
 
     // 処理により分岐
@@ -263,10 +276,10 @@
 
         case "AddNew":
             $TRCnt    = 0;
-            $UName    = $CookieArr["UName"];
-            $EMail    = $CookieArr["EMail"];
+            $UName    = $CookieArr["UName"] ?? "";
+            $EMail    = $CookieArr["EMail"] ?? "";
 
-            $PassWord = $CookieArr["PassWord"];
+            $PassWord = $CookieArr["PassWord"] ?? "";
             $thread   = ceil(@$_REQUEST["thread"]);
 
             if ($thread != NEWMESSAGE) {

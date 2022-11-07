@@ -5,10 +5,26 @@
     // include "loginchkdrm.php";
     require_once __DIR__ . "/common.php";
     require_once __DIR__ . "/drbbs.php";
-    require_once __DIR__ . "/loginchkdrm.php";
+    // require_once __DIR__ . "/loginchkdrm.php";
 // ↑↑ <2020/11/19> <VinhDao> <修正>
+
+	$serial_no = GetLoginSerial();
+	if ($serial_no == "") {
+		// ↓↓　<2022/08/31> <KhanhDinh> <write url 「"sorizo":"url"」 in localstorage to redirect when success login>
+		WriteRequestedURL();
+		// ↑↑　<2022/08/31> <KhanhDinh> <write url 「"sorizo":"url"」 in localstorage to redirect when success login>
+		header("location: /drm/loginchkdrm.php?url=drmq");
+		exit();
+	}
+	// ↓↓　<2022/08/31> <KhanhDinh> <Delete url 「"sorizo":"url"」 in localstorage when open browser logined>
+	DeleteRequestedURL();
+	// ↑↑　<2022/08/31> <KhanhDinh> <Delete url 「"sorizo":"url"」 in localstorage when open browser logined>
     GetSystemValue();
     WriteLog(true);
+
+	$_REQUEST["Menu"] = $_REQUEST["Menu"] ?? "";
+	$_REQUEST["GroupID"] = $_REQUEST["GroupID"] ?? "";
+	$_REQUEST["MesID"] = $_REQUEST["MesID"] ?? "";
 
     $Conn    = ConnectSorizo();
     $Menu    = htmlspecialchars( @$_REQUEST["Menu"] );
@@ -44,7 +60,7 @@
 //                $sql         = "SELECT * FROM ".TMESSAGE." WHERE thread=".$MesID;
 //                $temp_result = mysqli_query($Conn, $sql);
 
-                $sql = "SELECT * FROM ".TMESSAGE." WHERE thread=".$MesID;
+                $sql = "SELECT * FROM ".TMESSAGE." WHERE thread= ?";
                 $temp_stmt = mysqli_prepare($Conn, $sql);
                 mysqli_stmt_bind_param($temp_stmt, 'i', $MesID);
                 mysqli_stmt_execute($temp_stmt);
@@ -161,7 +177,8 @@
         <head>
             <meta HTTP-EQUIV="Content-Type" CONTENT="text/html;charset=x-sjis">
             <title><?= $GLOBALS['MainTitle'] ?></title>
-<?php include($_SERVER['DOCUMENT_ROOT'] . '/lib/header_gtag_ga4.php'); ?>
+			<?php require_once __DIR__ . '/../lib/localstorage.php'; ?>
+			<?php include($_SERVER['DOCUMENT_ROOT'] . '/lib/header_gtag_ga4.php'); ?>
         </head>
 
         <FRAMESET COLS="25%,*">

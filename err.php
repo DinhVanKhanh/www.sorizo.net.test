@@ -1,8 +1,8 @@
 <?php
 
-    require_once 'lib/common.php';
-    require_once 'lib/login.php';
-    require_once 'lib/contents_list.php';
+    // require_once 'lib/common.php';
+    // require_once 'lib/login.php';
+    // require_once 'lib/contents_list.php';
 
 ?>
 <!DOCTYPE HTML>

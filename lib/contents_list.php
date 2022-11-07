@@ -113,6 +113,8 @@
                     foreach ($IntendedProductsCode as $IPCode) {
                         // 開発用デモシリアルを除いた際の処理
                         $ContentsHandling = "";
+						// init $code
+                        $code = "";
                         if (substr($IPCode, 0, 1) != "s") {
                             // IPCode毎の契約終了期間をCookieから取得
                             $CodeExpires = GetCookie($IPCode, f_expires);

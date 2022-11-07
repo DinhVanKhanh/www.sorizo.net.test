@@ -1,23 +1,33 @@
 <?php
 // 2020/12/05 Kentaro.Watanabe mod; error.php -> err.php に修正
-
     require_once __DIR__ ."/../../common_files/STFSApiAccess.php";
 // ↓↓　<2020/10/30> <VinhDao> <追加>
     require_once __DIR__ . '/common.php';
     use Redirect\Redirect as Redirect;
 // ↑↑　<2020/10/30> <VinhDao> <追加>
 
-    // Cookieを消す
+    // Function : Cookies will be changed to session['store'] stored in localstorage
+	// Comment  : all session['store'] will be saved in localstorage
     function DeleteCookies() {
         // 保有製品一覧の配列から抜き出したシリアル4桁の各値（s000は含みません）
         // まず保有確認製品の値を全て削除します（1日前のCookieとして保存し、ブラウザ側で削除させる）
         global $PossessedProductsCode;
-       
         foreach ($PossessedProductsCode as $PPcode) {
-            UpdateCookie($PPcode, "", -1);
+            // UpdateCookie($PPcode, "", -1);
+			// $_SESSION['store'][123] = 1;
+			$_SESSION['store'][$PPcode] = [];
+			unset($_SESSION['store'][$PPcode]);
         }
         // ログインシリアルの値も一度消します。
-        UpdateCookie(LoginProduct, "", -1);
+        // UpdateCookie(LoginProduct, "", -1);
+
+		//delete all session has been save in localstorage
+		$_SESSION['store'][LoginProduct] = [];
+		unset($_SESSION['store'][LoginProduct]);
+
+		// delete expire
+		$_SESSION['store']['expire'] = [];
+		unset($_SESSION['store']['expire']);
     }
 
     // ユーザー専用のコンテンツを表示するためにCookieをチェックします。
@@ -42,18 +52,17 @@
         }
         // 製品を問わず、ソリマチクラブ会員であればよい場合
         elseif ($code == "all") {
-            
             // ログインした製品の契約終了日がきちんと入っているかどうかを確認する
             $CodeExpires = GetCookie(LoginProduct, f_expires);
             if ($CodeExpires == "") {
                 // 日付の値が入っていない（ログインできていない）ので、ページ表示はせずエラーとする
                 WriteRequestedURL();
-                
-                //　↓↓　＜2020/10/30＞　＜VinhDao＞　＜修正＞
+
+            //　↓↓　＜2020/10/30＞　＜VinhDao＞　＜修正＞
                 // header("Location: /err.php?err=cr001");
                 // exit;
                 Redirect::goto('/err.php?err=cr001');
-                //　↑↑　＜2020/10/30＞　＜VinhDao＞　＜修正＞
+            //　↑↑　＜2020/10/30＞　＜VinhDao＞　＜修正＞
             }
             else {
                 // 日付が入っている場合は今日の日付と照らし合わせて表示するか否かを判断する
@@ -386,7 +395,10 @@
         $cookieArr = GetCookie(sorizo);
         $temp = $_SERVER["REQUEST_URI"];
         $cookieArr[f_url] = ($temp == "") ? "index.php" : $temp;
-        UpdateCookie(sorizo, $cookieArr);
+		// ↓↓　<2022/31/08> <KhanhDinh> <except url no update in localstorage>
+		if(!stripos($cookieArr[f_url],"loginchkdrm.php"))
+        	UpdateCookie(sorizo, $cookieArr);
+		// ↑↑　<2022/31/08> <KhanhDinh> <except url no update in localstorage>
     }
 
     // リダイレクトアドレスがあればそちらに移動します。なければスルーします。

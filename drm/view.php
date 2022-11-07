@@ -6,6 +6,9 @@
     WriteLog(true);
 
     // パラメータ取得
+	$_REQUEST["Menu"] = $_REQUEST["Menu"] ?? "";
+	$_REQUEST["MesID"] = $_REQUEST["MesID"] ?? "";
+	
     $Menu  = htmlspecialchars(@$_REQUEST["Menu"]);
     $MesID = (htmlspecialchars(@$_REQUEST["MesID"]) != '') ? ceil(htmlspecialchars(@$_REQUEST["MesID"])) : '';
     $conn  = ConnectSorizo();

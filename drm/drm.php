@@ -1,9 +1,26 @@
 <?php
     require_once "common.php";
     require_once "drbbs.php";
-    require_once "loginchkdrm.php";
+    // require_once "loginchkdrm.php";
+
+    $serial_no = GetLoginSerial();
+    if ($serial_no == "") {
+		// ↓↓　<2022/08/31> <KhanhDinh> <write url 「"sorizo":"url"」 in localstorage to redirect when success login>
+		WriteRequestedURL();
+		// ↑↑　<2022/08/31> <KhanhDinh> <write url 「"sorizo":"url"」 in localstorage to redirect when success login>
+		header("location: /drm/loginchkdrm.php?url=drm");
+		exit();
+    }
+	// ↓↓　<2022/08/31> <KhanhDinh> <Delete url 「"sorizo":"url"」 in localstorage>
+	DeleteRequestedURL();
+	// ↑↑　<2022/08/31> <KhanhDinh> <Delete url 「"sorizo":"url"」 in localstorage>
+
     GetSystemValue();
     WriteLog(true);
+
+	$_REQUEST["Menu"] = $_REQUEST["Menu"] ?? "";
+	$_REQUEST["GroupID"] = $_REQUEST["GroupID"] ?? "";
+	$_REQUEST["MesID"] = $_REQUEST["MesID"] ?? "";
 
     $Conn    = ConnectSorizo();
     $Menu    = htmlspecialchars( @$_REQUEST["Menu"] );
@@ -152,11 +169,12 @@
     }
 ?>
     <!DOCTYPE html>
-    <HTML lang="ja">
+    <HTML lang="ja"></HTML>
         <head>
             <meta HTTP-EQUIV="Content-Type" CONTENT="text/html;charset=x-sjis">
             <title><?= $GLOBALS['MainTitle'] ?></title>
-<?php include($_SERVER['DOCUMENT_ROOT'] . '/lib/header_gtag_ga4.php'); ?>
+			<?php require_once __DIR__ . '/../lib/localstorage.php'; ?>
+			<?php include($_SERVER['DOCUMENT_ROOT'] . '/lib/header_gtag_ga4.php'); ?>
         </head>
 
         <FRAMESET ROWS="85, *">

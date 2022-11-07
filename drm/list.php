@@ -43,6 +43,9 @@
     $MessageRead = (isset($CookieArr["MessageRead"]) && $CookieArr["MessageRead"] != '') ? ceil($CookieArr["MessageRead"]) : $row["MessageRead"];
 
     // 表示ページ数
+	@$_REQUEST["apNow"] = @$_REQUEST["apNow"] ?? "";
+	@$_REQUEST["Menu"] = @$_REQUEST["Menu"] ?? "";
+	
     $apNow = (htmlspecialchars(@$_REQUEST["apNow"]) != '') ? htmlspecialchars(@$_REQUEST["apNow"]) : 1;
     $Menu  = (htmlspecialchars(@$_REQUEST["Menu"]) == '') ? $DefMenu : htmlspecialchars(@$_REQUEST["Menu"]);
     switch ($Menu) {

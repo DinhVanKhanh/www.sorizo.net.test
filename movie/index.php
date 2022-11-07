@@ -52,7 +52,8 @@
             dl.output { margin:0; }
             dt.output { padding:0 0 0.3em 1em;  text-indent:-1em; margin:0; }
         </style>
-<?php include($_SERVER['DOCUMENT_ROOT'] . '/lib/header_gtag_ga4.php'); ?>
+		<?php require_once __DIR__ . '/../lib/localstorage.php'; ?>
+		<?php include($_SERVER['DOCUMENT_ROOT'] . '/lib/header_gtag_ga4.php'); ?>
     </head>
     <body id="logout">
         <?php require_once '../lib/header_general.php'; ?>

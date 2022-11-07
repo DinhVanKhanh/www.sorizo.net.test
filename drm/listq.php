@@ -104,8 +104,11 @@
 // 2020/02/13 t.maruyama 修正 ↓↓ 不具合の対応
                 if (session_id() != "") {
                     // いったんセッションをクリアする
-                    $_SESSION = array();
-                    session_destroy();
+                    // $_SESSION = array();
+                    // session_destroy();
+// ↓↓　<2022/08/25> <KhanhDinh> <destroy all session except session['store]: SAVE LOCALSTORAGE IN JS>
+					deleteExceptSession("store");
+// ↑↑　<2022/08/25> <KhanhDinh> <destroy all session except session['store]: SAVE LOCALSTORAGE IN JS>
                 }
                 session_start();
 // 2020/02/13 t.maruyama 修正 ↑↑ 不具合の対応
@@ -145,9 +148,12 @@
     else {
 // 2020/02/13 t.maruyama 修正 ↓↓ 不具合の対応
 //        $_SESSION["ReadPassWord"] = $_SESSION["GroupID"] = '';
-        $_SESSION = array();
+        // $_SESSION = array();
 // 2020/02/13 t.maruyama 修正 ↑↑ 不具合の対応
-        session_destroy();
+        // session_destroy();
+// ↓↓　<2022/08/25> <KhanhDinh> <destroy all session except session['store]: SAVE LOCALSTORAGE IN JS>
+		deleteExceptSession("store");
+// ↑↑　<2022/08/25> <KhanhDinh> <destroy all session except session['store]: SAVE LOCALSTORAGE IN JS>
     }
 
     // 処理により分岐
@@ -369,7 +375,7 @@
                 $sql .= " AND ".trim($sql2, " AND");
             }
 
-            $sql .= " AND GroupID In (SELECT GroupID FROM ".TGROUP." WHERE (ReadPassWord Is Null) Or (ReadPassWord='".$_SESSION["ReadPassWord"]."'))";
+            $sql .= " AND GroupID In (SELECT GroupID FROM ".TGROUP." WHERE (ReadPassWord Is Null) Or (ReadPassWord='".@$_SESSION["ReadPassWord"]."'))";
             $sql  = str_replace("WHERE AND", "WHERE", $sql);
             $sql .= " ORDER BY MessageID DESC";
             $sql  = str_replace("WHERE ORDER", "ORDER", $sql);

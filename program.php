@@ -29,7 +29,8 @@
     <script type="text/javascript" src="/js/bbct/scramble.js"></script>
     <script type="text/javascript" src="/js/bbct/stegodict.js"></script>
     <script type="text/javascript" src="/js/bbct/utf-8.js"></script>
-<?php include($_SERVER['DOCUMENT_ROOT'] . '/lib/header_gtag_ga4.php'); ?>
+	<?php require_once __DIR__ . '/lib/localstorage.php'; ?>
+	<?php include($_SERVER['DOCUMENT_ROOT'] . '/lib/header_gtag_ga4.php'); ?>
 </head>
 <body id="logout">
     <?php require_once 'lib/header_general.php'; ?>

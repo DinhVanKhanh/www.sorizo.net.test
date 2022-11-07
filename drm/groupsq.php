@@ -5,6 +5,7 @@
     GetSystemValue();
     WriteLog(true);
 
+	$_REQUEST["Menu"] = $_REQUEST["Menu"] ?? "";
     $Menu      = htmlspecialchars( @$_REQUEST["Menu"] );
     $CookieArr = GetCookie(CookieConf);
     /*

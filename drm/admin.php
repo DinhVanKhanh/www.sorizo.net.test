@@ -3,8 +3,8 @@
     require_once 'common.php';
     require_once 'drbbs.php';
     require_once '../lib/common.php';
-    GetSystemvalue();
 
+    GetSystemvalue();
     $Conn = ConnectSorizo();
     $OwnerPassWord = $OwnerGroupID = $AdMode = $ErrSystem = $ErrOwner = $GroupID = "";
 
@@ -35,7 +35,6 @@
                 $OwnerGroupID = round(htmlentities($_POST["OwnerGroupID"]));
 // 2020/01/06 t.maruyama 修正 ↓↓ セキュリティ対策のためプリペアードステートメント化
 //                $result2 = mysqli_query($Conn, CheckSQL("select GroupID FROM ".TGROUP." WHERE OwnerPassWord='".CheckSQ($OwnerPassWord)."' AND GroupID=".$OwnerGroupID));
-
                 $sql = "SELECT GroupID FROM ".TGROUP." WHERE OwnerPassWord = ? AND GroupID = ? ";
                 $stmt = mysqli_prepare($Conn, $sql);
                 mysqli_stmt_bind_param($stmt, 'si', $OwnerPassWord,$OwnerGroupID);
@@ -1206,24 +1205,46 @@
 // 2020/01/06 t.maruyama 追加 ↓↓ セキュリティ対策のためプリペアードステートメント化
                         $stmt = NULL;
 // 2020/01/06 t.maruyama 追加 ↑↑
+// ↓↓　<2022/08/31> <KhanhDinh> <Pagination>
+							// $offset = ($apNow - 1) * 20;
+							// $SQLPage = " LIMIT $offset,20";
+// ↑↑　<2022/08/31> <KhanhDinh> <Pagination>
+
                         if ($AdMode == "System") {
                             $SQL = "SELECT ".TMESSAGE.".*,".TGROUP.".GroupName FROM ".TGROUP." INNER JOIN ".TMESSAGE." ON ".TGROUP.".GroupID = ".TMESSAGE.".GroupID ORDER BY MessageID DESC";
 // 2020/01/06 t.maruyama 追加 ↓↓ セキュリティ対策のためプリペアードステートメント化
                             $stmt = mysqli_prepare($Conn, $SQL);
+                            // mysqli_stmt_bind_param($stmt, 's',$offset);
+
+// ↓↓　<2022/08/31> <KhanhDinh> <Pagination>
+							// $SQLPage = $SQL . $SQLPage;
+							// $stmtPage =  mysqli_prepare($Conn, $SQLPage);
+// ↑↑　<2022/08/31> <KhanhDinh> <Pagination>
+							
+
 // 2020/01/06 t.maruyama 追加 ↑↑
                         }
                         else {
 // 2020/01/06 t.maruyama 修正 ↓↓ セキュリティ対策のためプリペアードステートメント化
-//                            $SQL = "select * FROM ".TMESSAGE." WHERE GroupID=".$OwnerGroupID." ORDER BY MessageID DESC";
-
+//                          $SQL = "select * FROM ".TMESSAGE." WHERE GroupID=".$OwnerGroupID." ORDER BY MessageID DESC";
                             $SQL = "SELECT * FROM ".TMESSAGE." WHERE GroupID = ? ORDER BY MessageID DESC";
                             $stmt = mysqli_prepare($Conn, $SQL);
                             mysqli_stmt_bind_param($stmt, 'i',$OwnerGroupID);
+
+// ↓↓　<2022/08/31> <KhanhDinh> <Pagination>
+							// $SQLPage = $SQL . $SQLPage;
+							// $stmtPage =  mysqli_prepare($Conn, $SQLPage);
+							// mysqli_stmt_bind_param($stmtPage, 'i',$OwnerGroupID);
+// ↑↑　<2022/08/31> <KhanhDinh> <Pagination>
 // 2020/01/06 t.maruyama 修正 ↑↑
                         }
 
 // 2020/01/06 t.maruyama 修正 ↓↓ セキュリティ対策のためプリペアードステートメント化
 //                        $result     = mysqli_query($Conn, CheckSQL($SQL));
+// ↓↓　<2022/08/31> <KhanhDinh> <Pagination>
+						// mysqli_stmt_execute($stmtPage);
+						// $resultPage     = mysqli_stmt_get_result($stmtPage);
+// ↑↑　<2022/08/31> <KhanhDinh> <Pagination>
 
                         mysqli_stmt_execute($stmt);
                         $result     = mysqli_stmt_get_result($stmt);
@@ -1233,6 +1254,9 @@
                         $TotalPages = ceil($TotalRows / $PageSize); 
 
                         if (($result != false) && (mysqli_num_rows($result) > 0)) {
+// ↓↓　<2022/08/31> <KhanhDinh> <Pagination>
+						// if (($resultPage != false) && (mysqli_num_rows($resultPage) > 0)) {
+// ↑↑　<2022/08/31> <KhanhDinh> <Pagination>
                             echo "<table BORDER='1' width='100%' CELLPADDING='3' CELLSPACING='1'>";
                             echo  "<tr align='CENTER' bgcolor='#DDFFDD'>";
                             echo "<td>No</td>";
@@ -1244,6 +1268,9 @@
                             echo  "</tr>";
                             $Cnt = 0;
                             while ($res = mysqli_fetch_assoc($result)) {
+// ↓↓　<2022/08/31> <KhanhDinh> <Pagination>
+							// while ($res = mysqli_fetch_assoc($resultPage)) {
+// ↑↑　<2022/08/31> <KhanhDinh> <Pagination>
                                 echo "<tr bgcolor='".colorSet($Cnt)."'>";
                                 echo "<td align=RIGHT>".$res["MessageID"]."</td>";
                                 if ($AdMode == "System") {
@@ -1293,6 +1320,9 @@
                         echo "<br>";
 // 2020/01/06 t.maruyama 追加 ↓↓ セキュリティ対策のためプリペアードステートメント化
                         mysqli_stmt_close($stmt);
+// ↓↓　<2022/08/31> <KhanhDinh> <Pagination>
+                        // mysqli_stmt_close($stmt);
+// ↑↑　<2022/08/31> <KhanhDinh> <Pagination>
 // 2020/01/06 t.maruyama 追加 ↑↑
                         mysqli_free_result($result);
                     }

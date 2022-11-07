@@ -2,10 +2,10 @@
     if (session_id() == "") {
         session_start();
     }
-    // require_once dirname(__FILE__)."/../../common_files/includes/debug/config.inc.php";
-
+	ob_start();
+    // require_once dirname(__FILE__)."/../../common_files/includes/debug/config.inc.php";	
     use function PHPSTORM_META\type;
-
+	
     require_once dirname(__FILE__)."/../../common_files/webserver_flg.php";
     require_once dirname(__FILE__)."/../../common_files/connect_db.php";
     // Bellsoft Maruyama add 2020/02/10 from
@@ -23,6 +23,9 @@
     use Redirect\Redirect as Redirect;
     require_once __DIR__ . '/functions.php';
 //　↑↑　<2020/10/30> <VinhDao> <追加>
+// ↓↓　<2022/08/25> <KhanhDinh> <追加>
+	require_once 'login.php';
+// ↑↑　<2022/08/25> <KhanhDinh> <追加>
 
     global $WEBSERVER_FLG;
 
@@ -223,6 +226,45 @@
     global $LogFileDirectory;
     global $LGINLogFileDirectory;
     global $DLLogFileDirectory;
+
+	// ajax call from lib/common.php
+	if (!empty($_POST['store'])) {
+		if(!empty($_POST['all'])){
+			foreach (@$_POST['all'] as $key => $value) {
+				$_SESSION['store'][$key] = urldecode($value);
+				// $_SESSION['store'][$key] = ($value);
+			}
+		}
+
+		switch (@$_POST['pathname']) {
+			case '/':
+			case '/index.php':
+				$rs['path'] = 'index';
+				echo json_encode($rs);
+				break;
+			case '/drm/loginchkdrm.php':
+				$serial_no = GetLoginSerial();
+				if ($serial_no == "") {
+					$url = "/drm/loginchkdrm.php?auth=false";
+				} else {
+
+					$url = "/drm/" . @$_POST['url'] . ".php";
+				}
+				$rs['path'] = "drm";
+				$rs['drm']['url'] = $url;
+				// ob_end_clean();
+				echo json_encode($rs);
+				break;
+			default:
+				$rs['path'] = 'index';
+				echo json_encode($rs);
+				break;
+		}
+		die();
+		// echo json_encode($_SESSION['store']);
+		// die();
+	}
+
 
     // 本サーバーの場合
     // 2020/02/26 t.maruyama 削除 ↓↓  AWS環境のログ出力先変更対応
@@ -686,19 +728,29 @@
         }
     }
 
+	// Function :Cookies will be changed to session['store'] stored in localstorage
+    // Input    :name      :key of session
+    // Input    :field     :value you want to get
+    // Return   :cookieArr :array contain value
+	// Comment  : all session['store'] will be saved in localstorage
     function GetCookie($name, $field = '') {
-        if ( empty($_COOKIE[$name]) ) {
+        if ( empty($_SESSION['store'][$name]) ) {
             return $field == "" ? array() : '';
         }
     //　↓↓　＜2020/10/30＞　＜VinhDao＞　＜修正＞
-        // $cookieArr = unserialize($_COOKIE[$name]);
+        // $cookieArr = unserialize($_SESSION['store'][$name]);
         // return $field != "" ? $cookieArr[$field] : $cookieArr;
 
-        $cookieArr = unserialize($_COOKIE[$name]);
-        // echo "<pre>";
-        // print_r($name);
-        // print_r($cookieArr);exit();
+	// ↓↓　<2022/31/08> <KhanhDinh> <decode value>
+		$cookieArr = json_decode($_SESSION['store'][$name],true);
+	// ↑↑　<2022/31/08> <KhanhDinh> <decode value>
+
         if ( $field != '' ) {
+	// ↓↓　<2022/31/08> <KhanhDinh> <create when logined and update expire when move tab>
+			$expire = strtotime("now") + CookiesSaveDays * 86400;
+			$expire =  $expire * 1000; // unit: milisecond => compare milisecond in js
+			$_SESSION['store']['expire'] = $expire;
+	// ↑↑　<2022/31/08> <KhanhDinh> <create when logined and update expire when move tab>
             return !isset($cookieArr[$field]) ? '' : $cookieArr[$field];
         }
         else {
@@ -707,7 +759,13 @@
     //　↑↑　＜2020/10/30＞　＜VinhDao＞　＜修正＞
     }
 
+// ↓↓　<2022/31/08> <KhanhDinh> <修正>
+	// Function :Cookies will be changed to session['store'] stored in localstorage
+    // Input    :name  :key of session
+    // Input    :val   :value of session
+	// Comment  : all session['store'] will be saved in localstorage
     function UpdateCookie($name, $val, $expire = CookiesSaveDays, $option = "day") {
+		$_SESSION['store'][$name] = json_encode($val);
     //　↓↓　＜2020/10/30＞　＜VinhDao＞　＜修正＞
         // if ($expire == "none") {
         //     // setcookie($name, serialize($val), time() + 365 * 86400, '/');
@@ -715,12 +773,12 @@
         //     goto Update;
         // }
         // $expire = ($option == "day") ? $expire * 86400 : $expire;
-        $expire = $expire * 86400;
-
         // Update:
-        setcookie($name, serialize($val), time() + $expire, '/');
+        // setcookie($name, serialize($val), time() + $expire, '/');
     //　↑↑　＜2020/10/30＞　＜VinhDao＞　＜修正＞
+		
     }
+// ↑↑　<2022/31/08> <KhanhDinh> <修正>
 
     // ↓★★動作確認用
     function WriteLog2($is_drm = false) {
@@ -731,7 +789,6 @@
         // ログインした際にサーバー側のCSVにログを書き込みます。
         $temp     = explode("/", $_SERVER["SCRIPT_NAME"]);
         $temp     = $temp[count($temp) - 1];
-
         $json = '{
                     "sral":{
                         "data":[
@@ -740,7 +797,7 @@
                     }
                 }';
         $user = GetAPIData("users", $json, "GET");
-
+		
         $user_cd = "";
  
     // ↓↓　<2020/04/08> <VinhDao> <syntaxを変換する>
@@ -991,4 +1048,21 @@
         }
         return "";
     }
+/* ↑↑　<2022/31/08> <KhanhDinh> <add> */
+	/**
+	* delete all session except key $except
+	*
+	* @param $except except key when delete session, delete all the session
+	* 
+	* @author Khanh
+	*/ 
+	function deleteExceptSession($except)		
+	{
+		foreach($_SESSION as $key => $val){
+			if ($key !== $except){
+				unset($_SESSION[$key]);
+			}
+		}
+	}
+
 ?>
